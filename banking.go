@@ -1,39 +1,19 @@
 package main
 
 import (
-	"errors"
+	"banking_app/filesys"
 	"fmt"
-	"os"
-	"strconv"
+
+	"github.com/Pallinder/go-randomdata"
 )
 
 // WRITING AND READING BALANCE TO AND FROM FILE, INSTEAD OF LOSING WHEN PROGRAM IS RESTARTED
 
 const accountBalanceFile = "balance.txt"
 
-func readBalanceFromFile() (float64, error) {
-	data, err := os.ReadFile(accountBalanceFile)
-
-	if err != nil {
-		return 0, errors.New("failed to read balance file")
-	}
-	balanceFile := string(data)
-	balance, _ := strconv.ParseFloat(balanceFile, 64)
-
-	if err != nil {
-		return 0, errors.New("failed to read stored balance value")
-	}
-	return balance, nil
-}
-
-func writeBalanceToFile(balance float64) {
-	balanceFile := fmt.Sprint(balance)
-	os.WriteFile(accountBalanceFile, []byte(balanceFile), 0644)
-}
-
 // MAIN BANK LOGIC
 func main() {
-	var accountBalance, err = readBalanceFromFile()
+	var accountBalance, err = filesys.ReadFloatFromFile(accountBalanceFile)
 
 	if err != nil {
 		fmt.Println("ERROR")
@@ -44,12 +24,11 @@ func main() {
 	}
 
 	fmt.Println("Welcome to Go Bank of Nigeria")
+	fmt.Println("You can reach us here 24/7:", randomdata.PhoneNumber())
 
 	for {
-		fmt.Println("1. Check Balance")
-		fmt.Println("2. Deposit Money")
-		fmt.Println("3. Withdraw Money")
-		fmt.Println("4. Exit")
+
+		presentOptions()
 
 		var choice int
 		fmt.Print("What would you like to do today?: ")
@@ -74,7 +53,7 @@ func main() {
 			accountBalance += depositAmount
 			fmt.Println("Thank You!!")
 			fmt.Println("Your new balance is", accountBalance)
-			writeBalanceToFile(accountBalance)
+			filesys.WriteFloatToFile(accountBalance, accountBalanceFile)
 		case 3:
 			var withdrawAmount float64
 			fmt.Print("How much would you like to withdraw: ")
@@ -86,7 +65,7 @@ func main() {
 			accountBalance -= withdrawAmount
 			fmt.Println("Thank You!!")
 			fmt.Println("Your new balance is", accountBalance)
-			writeBalanceToFile(accountBalance)
+			filesys.WriteFloatToFile(accountBalance, accountBalanceFile)
 		default:
 			fmt.Println("Goodbye!!!")
 			fmt.Println("Thanks for choosing Go Bank")
